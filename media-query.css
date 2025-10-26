@@ -248,7 +248,7 @@
     font-size: 1.6rem;
   }
   .card-holder {
-    padding: 20px;
+    padding: 10px;
   }
   .listings-hero-title {
     right: 15%;
@@ -394,10 +394,13 @@
     font-size: 0.9rem;
   }
   .featured-card img {
-    height: 150px;
+    height: 120px;
   }
   .cta-home {
     padding: 3rem 1rem;
+  }
+  .featured-properties-wrapper {
+    padding: 20px;
   }
   .listings-hero-title {
     right: 13%;
@@ -414,10 +417,10 @@
     height: 40%;
   }
   .property-card-image {
-    height: 10%;
+    height: 150px;
   }
   .property-card-image img {
-    height: 20%;
+    height: 100%;
   }
   .property-card-info {
     padding: 5px;

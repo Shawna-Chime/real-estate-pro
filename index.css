@@ -282,6 +282,7 @@ nav {
 .featured-properties-wrapper {
   background-color: #f7f7f7;
   text-align: center;
+  padding: 60px;
 }
 
 .title {
@@ -312,7 +313,8 @@ nav {
   flex-wrap: wrap;
   gap: 2rem;
   justify-content: center;
-  padding: 20px;
+  padding: 30px;
+  margin-top: 20px;
 }
 
 .featured-card {
