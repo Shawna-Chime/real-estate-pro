@@ -220,68 +220,77 @@ async function generateHome() {
 async function generateListings(initialFilters = {}) {
   main.innerHTML = `
   <section>
-      <div class="listings-hero">
-        <div class="listings-hero-img">
-          <div class="overlay-white"></div>
-          <img src="./images/skyline.jpg" alt="" />
-        </div>
+    <div class="listings-hero">
+      <div class="listings-hero-img">
+        <div class="overlay-white"></div>
+        <img src="./images/skyline.jpg" alt="" />
       </div>
-      <div class="listings-hero-title">
-        <h1>Explore Listings</h1>
-        <div class="red-line"></div>
-        <p>Find homes and properties tailored to your needs.</p>
-      </div>
-      <div class="filters-bar">
-        <div class="filter-search-bar">
-          <input
-            type="search"
-            name="filter-search"
-            id="filter-search"
-            placeholder="Search by location or keyword"
-          />
-        </div>
-        <div class="other-filters">
-          <select name="" id="property-type">
-            <option value="">Any Type</option>
-            <option value="Duplex">Duplex</option>
-            <option value="Bungalow">Bungalow</option>
-            <option value="Mini Flat">Mini Flat</option>
-            <option value="Apartment">Apartment</option>
-            <option value="Studio">Studio</option>
-            <option value="Villa">Villa</option>
-            <option value="Commercial">Commercial</option>
-          </select>
-          <select name="" id="price-range">
-            <option value="">Any Price</option>
-            <option value="low">₦100,000 - ₦300,000</option>
-            <option value="medium">₦350,000 - ₦20,000,000</option>
-            <option value="high">₦30,000,000 - ₦500,000,000</option>
-            <option value="luxury">₦600,000,000+</option>
-          </select>
-          <select name="" id="sort-by">
-            <option value="">Status</option>
-            <option value="">Any Status</option>
-            <option value="FOR SALE">For Sale</option>
-            <option value="FOR RENT">For Rent</option>
-          </select>
-        </div>
-        <div class="filter-actions">
-         <button class="red-btn" id="apply-filters">Apply Filters</button>
-         <button class="clear-btn" id="clear-filters">Clear Filters</button>
     </div>
+
+    <div class="listings-hero-title">
+      <h1>Explore Listings</h1>
+      <div class="red-line"></div>
+      <p>Find homes and properties tailored to your needs.</p>
+    </div>
+
+    <div class="filters-bar">
+      <div class="filter-search-bar">
+        <input
+          type="search"
+          id="filter-search"
+          placeholder="Search by name, location, or keyword"
+        />
       </div>
-      <p id="results-count" class="results-count"></p>
-      <div class="properties" id="properties">
+
+      <div class="other-filters">
+        <select id="property-type">
+          <option value="">Any Type</option>
+          <option value="Duplex">Duplex</option>
+          <option value="Bungalow">Bungalow</option>
+          <option value="Mini Flat">Mini Flat</option>
+          <option value="Apartment">Apartment</option>
+          <option value="Studio">Studio</option>
+          <option value="Villa">Villa</option>
+          <option value="Commercial">Commercial</option>
+        </select>
+
+        <select id="price-range">
+          <option value="">Any Price</option>
+          <option value="low">₦100,000 - ₦300,000</option>
+          <option value="medium">₦350,000 - ₦20,000,000</option>
+          <option value="high">₦30,000,000 - ₦500,000,000</option>
+          <option value="luxury">₦600,000,000+</option>
+        </select>
+
+        <select id="status-filter">
+          <option value="">Any Status</option>
+          <option value="FOR SALE">For Sale</option>
+          <option value="FOR RENT">For Rent</option>
+        </select>
+
+        <select id="sort-order">
+          <option value="">Sort By</option>
+          <option value="priceLowHigh">Price: Low → High</option>
+          <option value="priceHighLow">Price: High → Low</option>
+          <option value="newest">Newest Listings</option>
+          <option value="size">Size (Area)</option>
+        </select>
       </div>
-    </section>  
-  `;
+
+      <div class="filter-actions">
+        <button class="red-btn" id="apply-filters">Apply Filters</button>
+        <button class="clear-btn" id="clear-filters">Clear Filters</button>
+      </div>
+    </div>
+
+    <p id="results-count" class="results-count"></p>
+    <div class="properties" id="properties"></div>
+  </section>`;
 
   try {
-    // Parse URL query parameters (from home search)
+    // Parse filters from query
     const hash = location.hash;
     const queryIndex = hash.indexOf("?");
-    let initialFilters = {};
-
     if (queryIndex !== -1) {
       const queryString = hash.slice(queryIndex + 1);
       const params = new URLSearchParams(queryString);
@@ -296,27 +305,31 @@ async function generateListings(initialFilters = {}) {
     const allProperties = data.properties;
     const container = document.getElementById("properties");
 
-    // Select filters
+    // Select filter elements
     const searchInput = document.getElementById("filter-search");
     const typeSelect = document.getElementById("property-type");
     const priceSelect = document.getElementById("price-range");
-    const statusSelect = document.getElementById("sort-by");
+    const statusSelect = document.getElementById("status-filter");
+    const sortSelect = document.getElementById("sort-order");
     const filterBtn = document.getElementById("apply-filters");
     const clearBtn = document.getElementById("clear-filters");
 
-    // Prefill dropdowns if filters exist
+    // Prefill filters if coming from home search
     if (initialFilters.status) statusSelect.value = initialFilters.status;
     if (initialFilters.type) typeSelect.value = initialFilters.type;
     if (initialFilters.location) searchInput.value = initialFilters.location;
 
+    // --- Helper functions ---
     function normalize(str) {
-      return str ? str.trim().toUpperCase() : "";
+      return str ? str.trim().toLowerCase() : "";
+    }
+
+    function parsePrice(value) {
+      return parseInt(value.replace(/[₦,]/g, "")) || 0;
     }
 
     function checkPriceRange(priceStr, range) {
-      const price = parseInt(priceStr.replace(/[₦,]/g, ""));
-      if (!range) return true;
-
+      const price = parsePrice(priceStr);
       switch (range) {
         case "low":
           return price >= 100000 && price <= 300000;
@@ -328,6 +341,30 @@ async function generateListings(initialFilters = {}) {
           return price >= 600000000;
         default:
           return true;
+      }
+    }
+
+    function applySorting(list, sortValue) {
+      const sorted = [...list];
+      switch (sortValue) {
+        case "priceLowHigh":
+          return sorted.sort(
+            (a, b) => parsePrice(a.price) - parsePrice(b.price)
+          );
+        case "priceHighLow":
+          return sorted.sort(
+            (a, b) => parsePrice(b.price) - parsePrice(a.price)
+          );
+        case "size":
+          return sorted.sort(
+            (a, b) =>
+              parseInt(a.area.replace(/\D/g, "")) -
+              parseInt(b.area.replace(/\D/g, ""))
+          );
+        case "newest":
+          return sorted.sort((a, b) => b.id - a.id);
+        default:
+          return list;
       }
     }
 
@@ -344,64 +381,55 @@ async function generateListings(initialFilters = {}) {
       }
     }
 
+    // --- Main filtering + sorting logic ---
     function applyFilters() {
-      const searchValue = searchInput.value.trim().toLowerCase();
+      const searchValue = normalize(searchInput.value);
       const typeValue = typeSelect.value;
       const priceValue = priceSelect.value;
-      const statusValue = normalize(statusSelect.value);
+      const statusValue = statusSelect.value;
+      const sortValue = sortSelect.value;
 
+      // Filter
       const filtered = allProperties.filter((p) => {
         const matchesSearch =
           !searchValue ||
-          p.title.toLowerCase().includes(searchValue) ||
-          p.location.toLowerCase().includes(searchValue);
+          normalize(p.title).includes(searchValue) ||
+          normalize(p.location).includes(searchValue) ||
+          (p.description && normalize(p.description).includes(searchValue)) ||
+          (p.features &&
+            p.features.join(" ").toLowerCase().includes(searchValue)) ||
+          (p.amenities &&
+            p.amenities.join(" ").toLowerCase().includes(searchValue));
 
         const matchesType = !typeValue || p.type === typeValue;
-        const matchesStatus =
-          !statusValue || normalize(p.status) === statusValue;
+        const matchesStatus = !statusValue || p.status === statusValue;
         const matchesPrice = checkPriceRange(p.price, priceValue);
 
         return matchesSearch && matchesType && matchesStatus && matchesPrice;
       });
 
-      renderProperties(filtered);
+      // Sort
+      const sorted = applySorting(filtered, sortValue);
+
+      // Render
+      renderProperties(sorted);
     }
 
+    // --- Event Listeners ---
     filterBtn.addEventListener("click", applyFilters);
+    sortSelect.addEventListener("change", applyFilters);
 
     clearBtn.addEventListener("click", () => {
       searchInput.value = "";
       typeSelect.value = "";
       priceSelect.value = "";
       statusSelect.value = "";
+      sortSelect.value = "";
       renderProperties(allProperties);
     });
 
-    // 🔍 Apply filters from home search immediately (if any)
-    if (
-      initialFilters.status ||
-      initialFilters.type ||
-      initialFilters.location
-    ) {
-      const filtered = allProperties.filter((p) => {
-        const matchesStatus =
-          !initialFilters.status ||
-          normalize(p.status) === normalize(initialFilters.status);
-        const matchesType =
-          !initialFilters.type || p.type === initialFilters.type;
-        const matchesLocation =
-          !initialFilters.location ||
-          p.location
-            .toLowerCase()
-            .includes(initialFilters.location.toLowerCase());
-
-        return matchesStatus && matchesType && matchesLocation;
-      });
-
-      renderProperties(filtered);
-    } else {
-      renderProperties(allProperties);
-    }
+    // --- Initial render (with home filters applied) ---
+    applyFilters();
   } catch (e) {
     console.error(e);
     document.getElementById("properties").innerHTML =

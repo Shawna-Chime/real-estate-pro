@@ -851,7 +851,7 @@ select:focus {
 .our-story p {
   font-size: 22px;
   font-style: normal;
-  font-weight: lighter;
+  font-weight: 400;
   color: #333;
 }
 
@@ -871,7 +871,7 @@ select:focus {
   margin-left: 20px;
   font-size: 21px;
   font-style: normal;
-  font-weight: lighter;
+  font-weight: 400;
   color: #333;
 }
 
