@@ -301,6 +301,10 @@
   .overlay {
     height: 500px;
   }
+  .det-hero-info {
+    bottom: 30px;
+    left: 20px;
+  }
   .det-hero-info :first-child {
     font-size: 12px;
   }

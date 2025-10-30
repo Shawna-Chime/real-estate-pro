@@ -469,12 +469,12 @@ async function generateProperty(id) {
       <div class="property-det-hero">
         <div class="overlay"></div>
         <img src="${property.hero_image}" alt="hero-img" />
-      </div>
       <div class="det-hero-info">
         <p>Home / Listings / ${property.title}</p>
         <h2>${property.title}</h2>
         <h4>${property.location}</h4>
         <p class="sale-badge">${property.status}</p>
+      </div>
       </div>
       <div class="features-bar">
         <p class="red-text">${property.price}</p>
